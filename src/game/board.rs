@@ -4,8 +4,8 @@ use std::collections::{HashMap, HashSet};
 use itertools::Itertools;
 use itertools::PeekingNext;
 
-use crate::coord::*;
-use crate::entities::*;
+use crate::game::coord::*;
+use crate::game::entities::*;
 
 pub struct Board {
     board_map: HashMap<Coord, Piece>,

@@ -1,8 +1,8 @@
 use enum_dispatch::enum_dispatch;
 
-use crate::board::*;
-use crate::coord::*;
-use crate::entities::*;
+use crate::game::board::*;
+use crate::game::coord::*;
+use crate::game::entities::*;
 
 #[derive(PartialEq, Copy, Clone, Debug)]
 enum Phase {
