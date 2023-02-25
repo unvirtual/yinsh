@@ -59,6 +59,10 @@ impl Coord {
         num::pow(0.5*num::Float::sqrt(3.)*self.0 as f32, 2) + num::pow(self.1 as f32 - 0.5*self.0 as f32, 2)
     }
 
+    pub fn to_xy(&self) -> (f32, f32) {
+        (self.0 as f32*0.5*num::Float::sqrt(3.), self.1 as f32 - 0.5*self.0 as f32)
+    }
+
     pub fn sq_norm(&self) -> i8 {
         num::pow(self.0,2) + num::pow(self.1, 2)
     }
