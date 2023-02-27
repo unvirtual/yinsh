@@ -1,6 +1,6 @@
 use std::{cmp, ops::{Add, Sub}};
 use itertools::PeekingNext;
-use num;
+use num::{self, integer::Roots};
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum Direction {
@@ -47,8 +47,16 @@ impl Direction {
     }
 }
 
+pub fn distance_squared(p0: (f32, f32), p1: (f32, f32)) -> f32 {
+    norm_squared((p0.0-p1.0, p0.1-p1.1))
+}
+
+pub fn norm_squared(p: (f32, f32)) -> f32 {
+    p.0.powi(2) + p.1.powi(2)
+}
+
 #[derive(Hash, Eq, PartialEq, Debug, Copy, Clone)]
-pub struct Coord(i8, i8);
+pub struct Coord(pub i8, pub i8);
 
 impl Coord {
     pub fn new(x: i8, y: i8) -> Self {
@@ -56,15 +64,47 @@ impl Coord {
     }
 
     pub fn cartesian_sq_norm(&self) -> f32 {
-        num::pow(0.5*num::Float::sqrt(3.)*self.0 as f32, 2) + num::pow(self.1 as f32 - 0.5*self.0 as f32, 2)
+        norm_squared(self.to_xy())
+    }
+
+    pub fn cartesian_sq_dist(&self, other: &Coord) -> f32 {
+        (*self - *other).cartesian_sq_norm()
     }
 
     pub fn to_xy(&self) -> (f32, f32) {
         (self.0 as f32*0.5*num::Float::sqrt(3.), self.1 as f32 - 0.5*self.0 as f32)
     }
 
+    pub fn as_float_tuple(&self) -> (f32, f32) {
+        (self.0 as f32, self.1 as f32)
+    }
+
+    pub fn approx_from_xy(x: f32, y: f32) -> (f32, f32) {
+        let s3 : f32 = (3. as f32).sqrt();
+        (2./3.*s3*x, y + s3/3.*x)
+    }
+
+    pub fn closest_coord_to_xy(x: f32, y: f32) -> (Self, f32) {
+
+        let (xa, ya) = Self::approx_from_xy(x, y);
+        let origin = Coord::new(xa.floor() as i8, ya.floor() as i8);
+
+        let mut c = origin;
+        let mut d = distance_squared(c.to_xy(), (x,y));
+
+        for dir in [Direction::N, Direction::NE, Direction::SE] {
+            let n = origin.neighbour(&dir);
+            let newd = distance_squared(n.to_xy(), (x,y));
+            if newd < d {
+                c = n;
+                d = newd;
+            }
+        }
+        (c, d)
+    }
+
     pub fn sq_norm(&self) -> i8 {
-        num::pow(self.0,2) + num::pow(self.1, 2)
+        norm_squared(self.as_float_tuple()) as i8
     }
 
     pub fn neighbour(&self, direction: &Direction) -> Coord {

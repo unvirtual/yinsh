@@ -5,7 +5,7 @@ use crate::game::coord::*;
 use crate::game::entities::*;
 
 #[derive(PartialEq, Copy, Clone, Debug)]
-enum Phase {
+pub enum Phase {
     PlaceRing,
     PlaceMarker,
     MoveRing(Coord),
@@ -13,12 +13,12 @@ enum Phase {
     RemoveRing,
 }
 
-struct Game {
-    board: Board,
+pub struct Game {
+    pub board: Board,
     current_player: Player,
-    current_phase: Phase,
-    points_white: usize,
-    points_black: usize,
+    pub current_phase: Phase,
+    pub points_white: usize,
+    pub points_black: usize,
 
     runs_white: Vec<Vec<Coord>>,
     runs_black: Vec<Vec<Coord>>,
@@ -26,7 +26,7 @@ struct Game {
 
 impl Game {
 
-    fn new() -> Self {
+    pub fn new() -> Self {
         Game {
             board: Board::new(),
             current_player: Player::White,
@@ -38,9 +38,16 @@ impl Game {
         }
     }
 
-    fn legal_moves(&self) -> Vec<Action> {
+    pub fn legal_moves(&self) -> Vec<Action> {
         match self.current_phase {
-            Phase::PlaceRing => todo!(),
+            Phase::PlaceRing => {
+                self.board
+                    .board_coords()
+                    .iter()
+                    .filter(|x| self.board.occupied(x).is_none())
+                    .map(|c| Action::from(PlaceRing { pos: *c }))
+                    .collect()
+            },
             Phase::PlaceMarker => {
                 self.board
                     .player_rings(self.current_player)
@@ -54,47 +61,66 @@ impl Game {
                     .map(|c| Action::from(MoveRing { from: from, to: *c}))
                     .collect()
             }
-            Phase::RemoveRun => todo!(),
-            Phase::RemoveRing => todo!(),
+            // TODO: this does not always work for multiple simultaneous runs!!
+            Phase::RemoveRun => {
+                self.current_player_runs()
+                    .iter()
+                    .enumerate()
+                    .map(|(idx, run)| Action::from(RemoveRun { run_idx: idx, run: run.clone(), pos: run[0] }))
+                    .collect()
+            }
+            Phase::RemoveRing => {
+                self.board
+                    .player_rings(self.current_player)
+                    .map(|c| Action::from(RemoveRing { player: self.current_player, pos: *c }))
+                    .collect::<Vec<Action>>()
+            }
         }
     }
 
-    fn next(&self, coord: Coord) {
+    pub fn next(&self, coord: Coord) {
         todo!();
     }
 
-    fn next_player(&mut self) {
+    fn current_player_runs(&self) -> &Vec<Vec<Coord>> {
+        match self.current_player {
+            Player::Black => &self.runs_black,
+            Player::White => &self.runs_white,
+        }
+    }
+
+    pub fn next_player(&mut self) {
         self.current_player = self.current_player.other();
     }
 
-    fn set_phase(&mut self, phase: Phase) {
+    pub fn set_phase(&mut self, phase: Phase) {
         self.current_phase = phase;
     }
 
-    fn at_phase(&self, phase: &Phase) -> bool {
+    pub fn at_phase(&self, phase: &Phase) -> bool {
         self.current_phase == *phase
     }
 
-    fn compute_runs(&mut self) {
+    pub fn compute_runs(&mut self) {
         self.runs_white = self.board.runs(&Player::White);
         self.runs_black = self.board.runs(&Player::Black);
     }
 
-    fn has_run(&self, player: &Player) -> bool {
+    pub fn has_run(&self, player: &Player) -> bool {
         match player {
             Player::White => self.runs_white.len() > 0,
             Player::Black => self.runs_black.len() > 0,
         }
     }
 
-    fn get_run(&self, player: &Player, idx: usize) -> Option<&Vec<Coord>> {
+    pub fn get_run(&self, player: &Player, idx: usize) -> Option<&Vec<Coord>> {
         match player {
             Player::White => self.runs_white.get(idx),
             Player::Black => self.runs_black.get(idx),
         }
     }
 
-    fn is_valid_run(&self, player: &Player, run: &Vec<Coord>) -> bool {
+    pub fn is_valid_run(&self, player: &Player, run: &Vec<Coord>) -> bool {
         match player {
             Player::White => self.runs_white.iter().find(|&r| r == run).is_some(),
             Player::Black => self.runs_black.iter().find(|&r| r == run).is_some(),
@@ -102,14 +128,14 @@ impl Game {
 
     }
 
-    fn inc_score(&mut self, player: &Player) {
+    pub fn inc_score(&mut self, player: &Player) {
         match player {
             Player::White => self.points_white += 1,
             Player::Black => self.points_black += 1,
         }
     }
 
-    fn dec_score(&mut self, player: &Player) {
+    pub fn dec_score(&mut self, player: &Player) {
         match player {
             Player::White => self.points_white -= 1,
             Player::Black => self.points_black -= 1,
@@ -119,14 +145,16 @@ impl Game {
 }
 
 #[enum_dispatch]
-trait Command {
+pub trait Command {
     fn is_legal(&self, game: &Game) -> bool;
     fn execute(&self, game: &mut Game);
     fn undo(&self, game: &mut Game);
+    fn coord(&self) -> Coord;
 }
 
 #[enum_dispatch(Command)]
-enum Action {
+#[derive(Debug, Clone)]
+pub enum Action {
     PlaceRing,
     PlaceMarker,
     MoveRing,
@@ -134,24 +162,31 @@ enum Action {
     RemoveRing,
 }
 
-struct PlaceRing {
+#[derive(Debug, Clone)]
+pub struct PlaceRing {
     pos: Coord,
 }
 
-struct PlaceMarker {
+#[derive(Debug, Clone)]
+pub struct PlaceMarker {
     pos: Coord,
 }
 
-struct MoveRing {
+#[derive(Debug, Clone)]
+pub struct MoveRing {
     from: Coord,
     to: Coord,
 }
-struct RemoveRun {
+
+#[derive(Debug, Clone)]
+pub struct RemoveRun {
     run_idx: usize,
     run: Vec<Coord>,
+    pos: Coord,
 }
 
-struct RemoveRing {
+#[derive(Debug, Clone)]
+pub struct RemoveRing {
     pos: Coord,
     player: Player,
 }
@@ -178,6 +213,10 @@ impl Command for PlaceRing {
         game.set_phase(Phase::PlaceRing);
         game.next_player();
     }
+
+    fn coord(&self) -> Coord {
+        self.pos
+    }
 }
 
 impl Command for PlaceMarker {
@@ -196,6 +235,10 @@ impl Command for PlaceMarker {
         let piece = Piece::Ring(game.current_player);
         game.board.place_unchecked(&piece, &self.pos);
         game.set_phase(Phase::PlaceMarker);
+    }
+
+    fn coord(&self) -> Coord {
+        self.pos
     }
 }
 
@@ -219,6 +262,9 @@ impl Command for MoveRing {
 
         if game.board.runs(&game.current_player).len() > 0 {
             game.set_phase(Phase::RemoveRun);
+        } else if game.board.runs(&game.current_player.other()).len() > 0 {
+            game.set_phase(Phase::RemoveRun);
+            game.next_player();
         } else {
             game.set_phase(Phase::PlaceMarker);
             game.next_player();
@@ -230,6 +276,10 @@ impl Command for MoveRing {
         game.board.flip_between(&self.from, &self.to);
         game.set_phase(Phase::MoveRing(self.from));
         game.compute_runs();
+    }
+
+    fn coord(&self) -> Coord {
+        self.to
     }
 }
 
@@ -255,6 +305,10 @@ impl Command for RemoveRun {
             .iter()
             .for_each(|c| { game.board.place_unchecked(&marker, c); });
         game.compute_runs();
+    }
+
+    fn coord(&self) -> Coord {
+        self.pos
     }
 
 }
@@ -291,6 +345,10 @@ impl Command for RemoveRing {
         game.set_phase(Phase::RemoveRing);
         let ring = Piece::Ring(game.current_player);
         game.board.place_unchecked(&ring, &self.pos);
+    }
+
+    fn coord(&self) -> Coord {
+        self.pos
     }
 
 }
@@ -639,7 +697,7 @@ mod test {
         assert_eq!(game.get_run(&Player::White, 0), Some(&run));
 
         // not connected
-        let action = RemoveRun { run: run.clone(), run_idx: 0 };
+        let action = RemoveRun { run: run.clone(), run_idx: 0, pos: run[0] };
         assert!(action.is_legal(&game));
         action.execute(&mut game);
 
@@ -671,7 +729,7 @@ mod test {
         assert_eq!(game.get_run(&Player::White, 0), Some(&run));
 
         // not connected
-        let action = RemoveRun { run, run_idx: 0 };
+        let action = RemoveRun { run: run.clone(), run_idx: 0, pos: run[0] };
         assert!(!action.is_legal(&game));
     }
 
@@ -693,7 +751,7 @@ mod test {
         assert!(game.has_run(&Player::White));
 
         // not connected
-        let action = RemoveRun { run, run_idx: 2 };
+        let action = RemoveRun { run: run.clone(), run_idx: 2, pos: run[0] };
         assert!(!action.is_legal(&game));
     }
 
@@ -715,7 +773,7 @@ mod test {
         assert!(game.has_run(&Player::White));
 
         // not connected
-        let action = RemoveRun { run: run.clone(), run_idx: 0 };
+        let action = RemoveRun { run: run.clone(), run_idx: 0, pos: run[0] };
         assert!(action.is_legal(&game));
         action.execute(&mut game);
         assert!(!game.has_run(&Player::White));

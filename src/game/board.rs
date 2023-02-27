@@ -16,12 +16,42 @@ impl Board {
     pub fn new() -> Self {
         Board {
             board_map: HashMap::new(),
-            radius: 4.6,
+            radius: 4.7,
+        }
+    }
+
+    pub fn get_radius(&self) -> f32 {
+        self.radius
+    }
+
+    // TODO: this is wrong!
+    pub fn board_coords(&self) -> Vec<Coord> {
+        let mut res = Vec::new();
+        for dy in Coord::new(0,0).line_iter(&Direction::N)
+                                             .take_while(|c| self.valid_coord(c))
+                                             .chain(Coord::new(0,-1).line_iter(&Direction::S)
+                                             .take_while(|c| self.valid_coord(c))
+                                             )
+                                             {
+            for dx in dy.line_iter(&Direction::SE).take_while(|c| self.valid_coord(c)) 
+                               .chain(dy.line_iter(&Direction::NW).skip(1).take_while(|c| self.valid_coord(c))) {
+                res.push(dx);
+            }
+        }
+        res
+    }
+
+    pub fn closest_field_to_xy(&self, x: f32, y: f32) -> Option<(Coord, f32)> {
+        let closest = Coord::closest_coord_to_xy(x, y);
+        if self.valid_coord(&closest.0) {
+            Some(closest)
+        } else {
+            None
         }
     }
 
     pub fn valid_coord(&self, coord: &Coord) -> bool {
-        coord.cartesian_sq_norm() < num::pow(self.radius, 2)
+        coord.cartesian_sq_norm() <= num::pow(self.radius, 2)
     }
 
     pub fn occupied(&self, coord: &Coord) -> Option<&Piece> {
