@@ -1,7 +1,15 @@
-pub mod game;
-use crate::game::board::*;
-use crate::game::screen::*;
-use crate::game::game::*;
+pub mod core;
+pub mod frontend;
+
+use crate::core::entities::Piece;
+
+use crate::core::coord::HexCoord;
+
+use crate::core::board::Board;
+use crate::core::entities::Player;
+use crate::core::game::Game;
+
+use frontend::frontend::Frontend;
 use macroquad::prelude::*;
 use macroquad::window::Conf;
 
@@ -11,24 +19,23 @@ fn window_conf() -> Conf {
         window_width: 1024,
         window_height: 1024,
         high_dpi: true,
-        sample_count: 128,
+        sample_count: 1,
         ..Default::default()
     }
 }
 
 #[macroquad::main(window_conf)]
 async fn main() {
-    const width : f32 = 10.;
-    const height : f32 = 10.;
-
     let mut board = Board::new();
-    let mut screen = GameCanvas::new(&board, 1024., 1024., width, height);
-    let mut game = Game::new();
+    let font = load_ttf_font("./assets/MerriweatherSans-VariableFont_wght.ttf")
+        .await
+        .unwrap();
+
+    let frontend = Frontend::new(&board, font, 1024, 1024, 2., 2.);
+    let mut game = Game::new(Player::White, Box::new(frontend), board, 5);
 
     loop {
-        clear_background(LIGHTGRAY);
-        screen.update(&mut game);
-        screen.render(&game);
+        game.tick();
         next_frame().await
     }
 }

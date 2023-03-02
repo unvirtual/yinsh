@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@1.*/css/pico.min.css">
+    <title>Yinsh</title>
+    <style>
+        @font-face {
+            font-family: "H-Font";
+            src: url("assets/LilitaOne-Regular.ttf") format("truetype");
+        }
+
+        canvas {
+            aspect-ratio: 1;
+            height: 70vh;
+            position: relative;
+            margin: auto;
+            display: block;
+            background: white;
+            z-index: 0;
+        }
+
+        header {
+            padding-top: 20px;
+            padding-bottom: 20px;
+            margin: 0 0 0 0;
+        }
+
+        body>main {
+            padding-top: 0;
+        }
+
+
+        header>h1 {
+            text-align: center;
+            color: rgb(0, 55, 87);
+            font-size: 64px;
+            font-family: "H-Font";
+            padding: 0;
+            margin: 0;
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: "H-Font";
+        }
+    </style>
+</head>
+
+<body>
+    <div class="top">
+        <header class="container">
+            <h1>YINSH</h1>
+        </header>
+    </div>
+    <main class="container">
+        <canvas id="glcanvas" tabindex='1'></canvas>
+        <!-- Minified and statically hosted version of https://github.com/not-fl3/macroquad/blob/master/js/mq_js_bundle.js -->
+        <script src="https://not-fl3.github.io/miniquad-samples/mq_js_bundle.js"></script>
+        <script>load("yinsh.wasm");</script>
+        <div>
+            <p>A wasm-based version of the abstract board-game Yinsh, written in Rust using the <a
+                    href="https://github.com/not-fl3/macroquad">macroquad</a> library. The open source code is available
+                on <a href="https://www.github.com/unvirtual/yinsh-rs">github</a>.
+            </p>
+            <hgroup>
+                <h1>How to play</h1>
+                <h2>Taken from <a href="https://en.wikipedia.org/wiki/YINSH">Wikipedia</a></h2>
+            </hgroup>
+
+            <blockquote>
+                The goal of the game is to remove three of one's own rings from the game. Since this is the goal of
+                the
+                game,
+                getting closer to winning necessitates weakening oneself, which considerably complicates strategy as a
+                move
+                which brings one closer to winning the game may end up being a very poor move.
+            </blockquote>
+            <p>The game starts with an empty board, and proceeds in two phases, placement followed by movement.</p>
+
+            <h3>Placement</h3>
+
+            During the first phase the players, take turns placing one of their rings on the board on any unoccupied
+            space,
+            beginning with white. Once both players each have placed all five of their rings, this phase is over.
+
+            <h3>Movement</h3>
+
+            The second phase involves forming lines, defined as five adjacent markers in a straight line with a single
+            color. Once a line is formed in one player's color (on either player's turn), that player removes the five
+            markers, and also one of their rings. Once a player has removed three of their rings, they win the game.
+
+            <p>A turn consists of the following:</p>
+
+            <ol>
+                <li>The player chooses one of their own rings to move.</li>
+                <li>The player places a marker, with their own color face-up, in the middle of that ring on the space it
+                    occupies.</li>
+                <li>The player then moves the ring to another unoccupied space, along a straight line from the
+                    originating
+                    node. The
+                    marker never moves. In general, there are six directions from any node, with exceptions along the
+                    perimeter of
+                    the game board.</li>
+            </ol>
+
+            <p>When moving a ring, the following rules apply:</p>
+
+            <ul>
+                <li>The moving ring may not move over other rings.</li>
+                <li>The moving ring may pass over any number of markers in a row. If it does so, it must stop on the
+                    blank
+                    space
+                    immediately following the last marker moved over.
+                    All markers moved over like this are flipped over after moving the ring, reversing their color.</li>
+                <li>A moving ring may not end on a space already occupied by a marker.</li>
+            </ul>
+            It is possible, and not uncommon, to make a move which results in the opposing player having a line of five
+            markers in a row. When more than one line is made in the same turn, the player who just moved resolves their
+            own
+            lines (if any) first, and then the other player resolves their lines (if any) before making his next move.
+            Lines
+            are resolved one at a time, so if a single marker is shared by two lines, only one of those lines may be
+            resolved (but the player chooses which).
+        </div>
+    </main>
+</body>
+
+</html>
