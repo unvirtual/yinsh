@@ -31,10 +31,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Install packages (Linux)
+      - name: Install packages and target
         run: |
           sudo apt-get update
           sudo apt-get -yq --no-install-suggests --no-install-recommends install libx11-dev libxi-dev libgl1-mesa-dev libasound2-dev
+          rustup target add wasm32-unknown-unknown
       - name: Cargo build
         run: cargo build --target=wasm32-unknown-unknown --release
       - name: copy to deploy dir
