@@ -53,10 +53,10 @@ jobs:
           args: --target=wasm32-unknown-unknown --release
       - name: copy to deploy dir
         run: |
-          mkdir -p static/assets
+          mkdir -p public/assets
           cp target/wasm32-unknown-unknown/release/yinsh.wasm static
           cp src/www/* static
-          cp -r assets/* static/assets
+          cp -r public/* public/assets
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
