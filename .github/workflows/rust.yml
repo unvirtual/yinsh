@@ -35,10 +35,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get -yq --no-install-suggests --no-install-recommends install libx11-dev libxi-dev libgl1-mesa-dev libasound2-dev
-
       - name: Cargo build
-        with:
-          run: cargo build --target=wasm32-unknown-unknown --release
+        run: cargo build --target=wasm32-unknown-unknown --release
       - name: copy to deploy dir
         run: |
           mkdir -p public/assets
