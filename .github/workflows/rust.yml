@@ -11,33 +11,55 @@ env:
 
 jobs:
   build:
-    name: Build and test
-    runs-on: ${{ matrix.config.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        config:
-          - { os: ubuntu-latest, target: 'x86_64-unknown-linux-gnu' }
-          - { os: ubuntu-latest, target: 'wasm32-unknown-unknown' }
-        include:
-          - os: ubuntu-latest
-            packages: libx11-dev libxi-dev libgl1-mesa-dev libasound2-dev
+    name: Build linux and test
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
       - name: Install packages (Linux)
         run: |
           sudo apt-get update
-          sudo apt-get -yq --no-install-suggests --no-install-recommends install ${{ matrix.packages }}
+          sudo apt-get -yq --no-install-suggests --no-install-recommends install libx11-dev libxi-dev libgl1-mesa-dev libasound2-dev
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-          target: ${{ matrix.config.target }}
+          target: x86_64-unknown-linux-gnu
       - uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --all-targets --target=${{ matrix.config.target }}
+          args: --target=x86_64-unknown-linux-gnu --release
       - uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --all-targets --target=${{ matrix.config.target }}
+          args: --target=x86_64-unknown-linux-gnu
+          
+  wasmbuild:
+    name: Build wasm and deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install packages (Linux)
+        run: |
+          sudo apt-get update
+          sudo apt-get -yq --no-install-suggests --no-install-recommends install libx11-dev libxi-dev libgl1-mesa-dev libasound2-dev
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: wasm32-unknown-unknown
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --target=wasm32-unknown-unknown --release
+      - name: copy to deploy dir
+        run: |
+          mkdir -p static/assets
+          cp target/wasm32-unknown-unknown/release/yinsh.wasm static
+          cp src/www/* static
+          cp -r assets/* static/assets
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          personal_token: ${{ secrets.PERSONAL_TOKEN }}
+          publish_dir: ./public
+
