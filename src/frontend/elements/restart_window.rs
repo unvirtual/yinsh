@@ -8,7 +8,7 @@ use crate::{
             BUTTON_BORDER_COLOR, BUTTON_BORDER_WIDTH, BUTTON_DEFAULT_COLOR, BUTTON_FONT_SIZE,
             BUTTON_HOVER_COLOR, BUTTON_TEXT_COLOR, RESTART_WINDOW_SCORE_COLOR,
             RESTART_WINDOW_SCORE_FONTSIZE, RESTART_WINDOW_STATUS_COLOR,
-            RESTART_WINDOW_STATUS_FONTSIZE,
+            RESTART_WINDOW_STATUS_FONTSIZE, BLACK_PLAYER_COLOR,
         },
         element::Element,
         events::{Event, Message},
@@ -71,11 +71,11 @@ impl RestartWindow {
 impl Element for RestartWindow {
     fn render(&self) {
         draw_rectangle(
-            self.pos.x + 0.2,
+            self.pos.x - 0.2,
             self.pos.y - 0.2,
-            self.width,
-            self.height,
-            DARKGRAY,
+            self.width + 0.4,
+            self.height + 0.4,
+            BLACK_PLAYER_COLOR,
         );
         draw_rectangle(self.pos.x, self.pos.y, self.width, self.height, self.color);
         draw_text_centered(

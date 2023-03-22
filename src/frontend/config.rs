@@ -20,9 +20,9 @@ pub const RUN_INDICATOR_LINE_COLOR: Color = DARKGRAY;
 pub const RUN_INDICATOR_COLOR_HOVER: Color = WHITE;
 pub const RUN_INDICATOR_LINE_COLOR_HOVER: Color = DARKGRAY;
 
-pub const RESTART_WINDOW_BG_COLOR: Color = Color { r: 240./255., g: 240./255., b: 240./255., a: 1.0 };
-pub const RESTART_WINDOW_STATUS_COLOR: Color = BLACK;
-pub const RESTART_WINDOW_SCORE_COLOR: Color = BLACK;
+pub const RESTART_WINDOW_BG_COLOR: Color = Color { r: 213./255., g: 240./255., b: 245./255., a: 1.0 };
+pub const RESTART_WINDOW_STATUS_COLOR: Color = DARKGRAY;
+pub const RESTART_WINDOW_SCORE_COLOR: Color = BLACK_PLAYER_COLOR;
 pub const BUTTON_DEFAULT_COLOR: Color = WHITE;
 pub const BUTTON_HOVER_COLOR: Color = ORANGE;
 pub const BUTTON_BORDER_COLOR: Color = BLACK;
@@ -45,6 +45,7 @@ pub const RESTART_WINDOW_HEIGHT: f32 = 3.0;
 
 pub const RESTART_WINDOW_STATUS_FONTSIZE: f32 = 0.5;
 pub const RESTART_WINDOW_SCORE_FONTSIZE: f32 = 0.5;
+
 pub const BUTTON_FONT_SIZE: f32 = 0.25;
 pub const BUTTON_BORDER_WIDTH: f32 = 0.04;
 
