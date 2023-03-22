@@ -122,9 +122,9 @@ impl Frontend {
                 let score_text = format!("{} - {}", state.points_white, state.points_black);
 
                 self.presenter.add_element(Box::new(RestartWindow::new(
-                    vec2(-4.0, -2.0),
-                    8.0,
-                    4.0,
+                    vec2(-0.5*RESTART_WINDOW_WIDTH, -0.5*RESTART_WINDOW_HEIGHT),
+                    RESTART_WINDOW_WIDTH,
+                    RESTART_WINDOW_HEIGHT,
                     RESTART_WINDOW_BG_COLOR,
                     win_text,
                     &score_text,
