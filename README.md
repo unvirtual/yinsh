@@ -2,7 +2,7 @@
 
 This is an implementation of the abstract board game [YINSH](https://en.wikipedia.org/wiki/YINSH) in Rust using [macroquad](https://github.com/not-fl3/macroquad).
 
-You can play it [in the browser](https://unvirtual.github.io/yinsh-rs)!
+You can play it [in the browser](https://unvirtual.github.io/yinsh)!
 
 ![screenshot](https://raw.githubusercontent.com/unvirtual/yinsh-rs/main/screenshot/screenshot.png)
 
